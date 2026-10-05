@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package tunnel;
+
+option java_package = "com.vswitch.app.proto";
+option java_multiple_files = true;
+option optimize_for = LITE_RUNTIME;
+
+message Frame {
+  bytes payload = 1;
+}
+
+service TunnelService {
+  rpc Stream(stream Frame) returns (stream Frame);
+}

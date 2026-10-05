@@ -1,0 +1,25 @@
+{
+  "webui": {
+    "enabled": true,
+    "listen_addr": "0.0.0.0:9090"
+  },
+  "network": {
+    "gateway_ip": "10.0.0.254",
+    "gateway_mac": "02:00:00:00:00:01",
+    "subnet_mask": "255.255.255.0"
+  },
+  "transports": {
+    "uds_file": "/data/data/com.termux/files/usr/tmp/vswitch.sock",
+    "uds_abstract": "@vswitch.sock",
+    "udp": "0.0.0.0:8080",
+    "grpc": "0.0.0.0:50051",
+    "tls_cert": "certs/server.crt",
+    "tls_key": "certs/server.key"
+  },
+  "storage": {
+    "leases_file": "leases.json"
+  },
+  "emulation": {
+    "profiles": []
+  }
+}

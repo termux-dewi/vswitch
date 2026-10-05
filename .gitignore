@@ -1,0 +1,35 @@
+# Binaries
+dist/
+*.exe
+vswitch
+vswitch-client
+tunnel
+
+# Go
+vendor/
+
+# Certificates (do not commit secrets)
+certs/
+*.pem
+*.crt
+*.key
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Python venv
+env/
+
+# Temp
+tmp_*
