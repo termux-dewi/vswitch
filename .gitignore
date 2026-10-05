@@ -1,9 +1,8 @@
-# Binaries
-dist/
+# Binaries (root-level only)
+/dist/
 *.exe
-vswitch
-vswitch-client
-tunnel
+/vswitch
+/vswitch-client
 
 # Go
 vendor/
