@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # ── Go vet (run once) ─────────────────────────────────────────────────
+  # ── Go vet (run once, linux only since client has linux build tag) ───
   vet:
     runs-on: ubuntu-latest
     steps:
@@ -19,7 +19,7 @@ jobs:
           cache: true
       - run: go vet ./...
 
-  # ── Go cross-compile: server + client for all architectures ───────────
+  # ── Go cross-compile: server for all archs, client for linux only ────
   go-build:
     needs: vet
     runs-on: ubuntu-latest
@@ -62,16 +62,15 @@ jobs:
           [ "$GOOS" = "windows" ] && EXT=".exe"
           go build -ldflags "-s -w" -o "dist/vswitch-${GOOS}-${GOARCH}${EXT}" ./cmd/vswitch
 
-      - name: Build client
+      - name: Build client (linux only)
+        if: matrix.goos == 'linux'
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           GOARM: ${{ matrix.goarm || '' }}
           CGO_ENABLED: "0"
         run: |
-          EXT=""
-          [ "$GOOS" = "windows" ] && EXT=".exe"
-          go build -ldflags "-s -w" -o "dist/vswitch-client-${GOOS}-${GOARCH}${EXT}" ./cmd/client
+          go build -ldflags "-s -w" -o "dist/vswitch-client-${GOOS}-${GOARCH}" ./cmd/client
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -84,9 +83,6 @@ jobs:
   android-build:
     needs: vet
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: android
     steps:
       - uses: actions/checkout@v4
 
@@ -96,11 +92,12 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses > /dev/null 2>&1 || true
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+
+      - name: Install required SDK components
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" > /dev/null 2>&1 || true
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
@@ -108,6 +105,7 @@ jobs:
           gradle-version: "8.7"
 
       - name: Build debug APK
+        working-directory: android
         run: gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
