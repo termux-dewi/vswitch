@@ -51,19 +51,19 @@ protobuf {
         artifact = "com.google.protobuf:protoc:$protobufVersion"
     }
     plugins {
-        id("grpc") {
+        create("grpc") {
             artifact = "io.grpc:protoc-gen-grpc-java:$grpcVersion"
         }
     }
     generateProtoTasks {
         all().forEach { task ->
             task.builtins {
-                id("java") {
+                create("java") {
                     option("lite")
                 }
             }
             task.plugins {
-                id("grpc") {
+                create("grpc") {
                     option("lite")
                 }
             }
