@@ -23,6 +23,10 @@ class VSwitchVpnService : VpnService() {
         const val EXTRA_PORT = "port"
         const val EXTRA_SERVICE = "service"
         const val EXTRA_CA = "ca"
+        const val EXTRA_SECURITY = "security"
+        const val EXTRA_SNI = "sni"
+        const val EXTRA_ALPN = "alpn"
+        const val EXTRA_INSECURE = "insecure"
         const val EXTRA_ACTION = "action"
         const val ACTION_START = "start"
         const val ACTION_STOP = "stop"
@@ -49,8 +53,12 @@ class VSwitchVpnService : VpnService() {
         val port = intent.getIntExtra(EXTRA_PORT, 50051)
         val service = intent.getStringExtra(EXTRA_SERVICE) ?: "android-client"
         val ca = intent.getByteArrayExtra(EXTRA_CA)
+        val security = intent.getStringExtra(EXTRA_SECURITY) ?: "none"
+        val sni = intent.getStringExtra(EXTRA_SNI) ?: ""
+        val alpn = intent.getStringExtra(EXTRA_ALPN) ?: ""
+        val insecure = intent.getBooleanExtra(EXTRA_INSECURE, false)
         instance = this
-        scope.launch { runTunnel(host, port, service, ca) }
+        scope.launch { runTunnel(host, port, service, ca, security, sni, alpn, insecure) }
         return START_STICKY
     }
 
@@ -69,10 +77,11 @@ class VSwitchVpnService : VpnService() {
         instance = null
     }
 
-    private suspend fun runTunnel(host: String, port: Int, service: String, ca: ByteArray?) {
+    private suspend fun runTunnel(host: String, port: Int, service: String, ca: ByteArray?, security: String, sni: String, alpn: String, insecure: Boolean) {
         deriveMac(service)
         bootstrapping = true
         val tunnel = TunnelClient(host, port, service, ca,
+            security = security, sni = sni, alpn = alpn, allowInsecure = insecure,
             onFrame = { f ->
                 if (bootstrapping) bootQueue.offer(f) else forwardIn(f)
             },

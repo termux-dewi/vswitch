@@ -1,70 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="vSwitch Android Client"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/etHost"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Server host"
-        android:text="192.168.1.10" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <EditText
-        android:id="@+id/etPort"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Port"
-        android:inputType="number"
-        android:text="50051" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="vSwitch Android Client"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/etService"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Service name"
-        android:text="android-client" />
+        <EditText
+            android:id="@+id/etHost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Server host"
+            android:text="192.168.1.10" />
 
-    <Button
-        android:id="@+id/btnCa"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Pilih CA cert (.crt) — kosong = tanpa TLS" />
+        <EditText
+            android:id="@+id/etPort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Port"
+            android:inputType="number"
+            android:text="50051" />
 
-    <TextView
-        android:id="@+id/tvCa"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="CA: (belum dipilih / insecure)"
-        android:textSize="12sp" />
+        <EditText
+            android:id="@+id/etService"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Service name"
+            android:text="android-client" />
 
-    <Button
-        android:id="@+id/btnConnect"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Connect" />
+        <!-- ── TLS Settings (Nekobox-style) ─────────────────────────── -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="TLS Settings"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/btnDisconnect"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:enabled="false"
-        android:text="Disconnect" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Security"
+            android:textSize="13sp" />
 
-    <TextView
-        android:id="@+id/tvStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Status: idle" />
+        <Spinner
+            android:id="@+id/spnSecurity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-</LinearLayout>
+        <EditText
+            android:id="@+id/etSni"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="SNI (Server Name Indication)"
+            android:inputType="text" />
+
+        <EditText
+            android:id="@+id/etAlpn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="ALPN (contoh: h2, http/1.1)"
+            android:inputType="text" />
+
+        <CheckBox
+            android:id="@+id/cbInsecure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Allow Insecure (skip verifikasi sertifikat)" />
+
+        <Button
+            android:id="@+id/btnCa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pilih CA cert (.crt)" />
+
+        <TextView
+            android:id="@+id/tvCa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CA: (belum dipilih)"
+            android:textSize="12sp" />
+        <!-- ── End TLS Settings ─────────────────────────────────────── -->
+
+        <Button
+            android:id="@+id/btnConnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Connect" />
+
+        <Button
+            android:id="@+id/btnDisconnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="Disconnect" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Status: idle" />
+
+    </LinearLayout>
+</ScrollView>

@@ -11,15 +11,21 @@ import io.grpc.stub.StreamObserver
 import java.io.ByteArrayInputStream
 import java.security.KeyStore
 import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509TrustManager
 
 class TunnelClient(
     private val host: String,
     private val port: Int,
     private val serviceName: String,
     private val caCertPem: ByteArray?,
+    private val security: String = "none",
+    private val sni: String = "",
+    private val alpn: String = "",
+    private val allowInsecure: Boolean = false,
     private val onFrame: (ByteArray) -> Unit,
     private val onState: (Boolean, String) -> Unit
 ) {
@@ -32,8 +38,11 @@ class TunnelClient(
 
     fun start() {
         val builder = OkHttpChannelBuilder.forAddress(host, port)
-        if (caCertPem != null) {
-            builder.sslSocketFactory(buildSslContext(caCertPem).socketFactory)
+        if (security == "tls") {
+            builder.sslSocketFactory(buildSslContext().socketFactory)
+            if (sni.isNotEmpty()) {
+                builder.overrideAuthority(sni)
+            }
         } else {
             builder.usePlaintext()
         }
@@ -92,16 +101,31 @@ class TunnelClient(
         requestObserver = null
     }
 
-    private fun buildSslContext(pem: ByteArray): SSLContext {
-        val cf = CertificateFactory.getInstance("X.509")
-        val cert = cf.generateCertificate(ByteArrayInputStream(pem))
-        val ks = KeyStore.getInstance(KeyStore.getDefaultType())
-        ks.load(null, null)
-        ks.setCertificateEntry("ca", cert)
-        val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
-        tmf.init(ks)
+    private fun buildSslContext(): SSLContext {
         val ctx = SSLContext.getInstance("TLS")
-        ctx.init(null, tmf.trustManagers, null)
+        when {
+            allowInsecure -> {
+                val trustAll = object : X509TrustManager {
+                    override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+                    override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+                    override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+                }
+                ctx.init(null, arrayOf(trustAll), null)
+            }
+            caCertPem != null -> {
+                val cf = CertificateFactory.getInstance("X.509")
+                val cert = cf.generateCertificate(ByteArrayInputStream(caCertPem))
+                val ks = KeyStore.getInstance(KeyStore.getDefaultType())
+                ks.load(null, null)
+                ks.setCertificateEntry("ca", cert)
+                val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+                tmf.init(ks)
+                ctx.init(null, tmf.trustManagers, null)
+            }
+            else -> {
+                ctx.init(null, null, null)
+            }
+        }
         return ctx
     }
 }
